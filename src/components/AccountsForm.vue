@@ -18,15 +18,43 @@ export interface Account {
   }
 }
 
-const isEdit = ref(false)
-const account = ref({
+const isEdit = ref(true)
+const account = ref<Account>({
   id: '1',
   labels: [{ text: 'string' }],
   labelsRaw: '',
   type: 'LDAP',
   login: 'string',
   password: null,
+  isEditing: true,
+  errors: {}
 })
+
+const validate = () => {
+  let valid = true;
+  account.value.errors.login = '';
+  account.value.errors.password = '';
+
+  if (!account.value.login || account.value.login.trim().length === 0) {
+    account.value.errors.login = 'Логин обязателен';
+    valid = false;
+  }
+
+  if (account.value.type === 'Локальная') {
+    if (!account.value.password || account.value.password.trim().length === 0) {
+      account.value.errors.password = 'Пароль обязателен';
+      valid = false;
+    }
+  }
+
+  return valid;
+};
+
+const saveOnBlur = () => {
+  if (validate()) {
+    isEdit.value = false;
+  }
+};
 
 </script>
 
@@ -51,6 +79,7 @@ const account = ref({
           maxlength="50"
           class="px-3 py-1 rounded-md border focus:ring-2 focus:ring-blue-500"
           placeholder="Основная;Резервная"
+          @blur="saveOnBlur"
         />
         <span v-else class="text-gray-700">
           {{ account.labels.map(l => l.text).join('; ') || '—' }}
@@ -63,6 +92,7 @@ const account = ref({
           v-if="isEdit"
           v-model="account.type"
           class="px-3 py-1 rounded-md border focus:ring-2 focus:ring-blue-500"
+          @blur="saveOnBlur"
         >
           <option value="LDAP">LDAP</option>
           <option value="Локальная">Локальная</option>
@@ -81,12 +111,14 @@ const account = ref({
           v-if="isEdit"
           type="text"
           v-model="account.login"
+          minlength="1"
           maxlength="100"
           :class="[
             'px-3 py-1 rounded-md border focus:ring-2',
-            true ? 'border-red-500' : 'focus:ring-blue-500'
+            account.errors.login  ? 'border-red-500' : 'focus:ring-blue-500'
           ]"
           placeholder="Введите логин"
+          @blur="saveOnBlur"
         />
         <span v-else class="text-gray-700">{{ account.login }}</span>
       </div>
@@ -97,12 +129,14 @@ const account = ref({
           v-if="isEdit"
           type="password"
           v-model="account.password"
+          minlength="1"
           maxlength="100"
           :class="[
             'px-3 py-1 rounded-md border focus:ring-2',
-            true ? 'border-red-500' : 'focus:ring-blue-500'
+            account.errors.password ? 'border-red-500' : 'focus:ring-blue-500'
           ]"
           placeholder="Введите пароль"
+          @blur="saveOnBlur"
         />
         <span v-else class="text-gray-700">••••••</span>
       </div>

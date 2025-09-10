@@ -50,7 +50,7 @@ const deleteAccount = (id: string) => {
       </button>
     </div>
 
-    <InfoBlock text="Введите несколько меток через ;."/>
+    <InfoBlock text="Вы можете ввести несколько меток через ;."/>
     <AccountItem
       v-for="account in localAccounts"
       :key="account.id"

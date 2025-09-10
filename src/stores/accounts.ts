@@ -22,6 +22,11 @@ export const useAccountsStore = defineStore('accounts', () => {
     }
   }
 
+  const removeAccount = (id: string) => {
+    accounts.value = accounts.value.filter(a => a.id !== id)
+    saveToStorage()
+  }
+
   const saveAccount = (account: Account) => {
     const acc = accounts.value.find(a => a.id === account.id)
     const accountToSave = {
@@ -36,11 +41,6 @@ export const useAccountsStore = defineStore('accounts', () => {
     } else {
       addAccount(accountToSave)
     }
-  }
-
-  const removeAccount = (id: string) => {
-    accounts.value = accounts.value.filter(a => a.id !== id)
-    saveToStorage()
   }
 
   return {

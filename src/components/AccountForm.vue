@@ -13,7 +13,6 @@ const emit = defineEmits<{
 }>()
 
 const localAccount = ref<Account>({...props.account, labelsRaw: stringyLabels(props.account.labels)})
-const isEditing = ref(props.account.isEditing || false);
 const errors = ref({
     login: '',
     password: ''
@@ -45,7 +44,6 @@ const changeSelect = () => {
 
 const saveOnBlur = () => {
   if (!validate(localAccount.value)) return;
-  isEditing.value = false;
   localAccount.value = {
     ...localAccount.value,
     labels: processLabels(localAccount.value.labelsRaw || ''),

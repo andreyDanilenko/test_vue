@@ -61,7 +61,7 @@ const removeAccount = (id: string) => {
 </script>
 
 <template>
-  <div   @blur="saveOnBlur()" class="flex items-center gap-4 bg-gray-50 p-4 rounded-xl shadow relative">
+  <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-xl shadow relative">
     <div class="flex flex-col w-1/5">
       <label class="text-xs font-medium text-gray-500">Метка</label>
       <input

@@ -29,7 +29,12 @@ const saveAccount = (account: Account) => {
 };
 
 const deleteAccount = (id: string) => {
-  store.removeAccount(id);
+  const acc = store.accounts.find(a => a.id === id)
+  if (!acc) {
+    localAccounts.value = localAccounts.value.filter(a => a.id !== id)
+  } else {
+    store.removeAccount(id);
+  }
 }
 </script>
 

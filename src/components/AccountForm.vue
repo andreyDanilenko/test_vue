@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Account } from '@/types/account'
-import { processLabels, stringyLabels } from '@/utils/processLabels'
+import type { Account, AccountForm } from '@/types/account'
+import { stringyLabels } from '@/utils/processLabels'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -8,11 +8,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'save', account: Account): void
+  (e: 'save', account: AccountForm): void
   (e: 'delete', id: string): void
 }>()
 
-const localAccount = ref<Account>({
+const localAccount = ref<AccountForm>({
   ...props.account,
   labelsRaw: stringyLabels(props.account.labels)
 })
@@ -47,11 +47,7 @@ const saveOnBlur = async (): Promise<void> => {
 
   isLoading.value = true
   try {
-    const accountToSave = {
-      ...localAccount.value,
-      labels: processLabels(localAccount.value.labelsRaw || '')
-    }
-    emit('save', accountToSave)
+    emit('save', localAccount.value)
   } finally {
     isLoading.value = false
   }

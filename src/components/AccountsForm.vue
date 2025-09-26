@@ -3,26 +3,23 @@ import { ref } from 'vue'
 import InfoBlock from '@/components/InfoBlock.vue'
 import AccountItem from '@/components/AccountForm.vue'
 import { useAccountsStore } from '@/stores/accounts'
-import type { Account } from '@/types/account'
+import { AccountService } from '@/services/accountService'
+import type { AccountForm } from '@/types/account'
 
 const store = useAccountsStore()
-const temporaryAccounts = ref<Account[]>([])
+const temporaryAccounts = ref<AccountForm[]>([])
 
 const addAccount = () => {
-  temporaryAccounts.value.push({
-    id: crypto.randomUUID(),
-    labels: [],
-    labelsRaw: '',
-    type: 'LDAP',
-    login: '',
-    password: null,
-    isEditing: true,
-  })
+  temporaryAccounts.value.push(AccountService.createDefaultAccount())
 }
 
-const saveAccount = (account: Account) => {
-  store.saveAccount(account)
-  temporaryAccounts.value = temporaryAccounts.value.filter(acc => acc.id !== account.id)
+const saveAccount = (account: AccountForm) => {
+  try {
+    store.saveAccount(account)
+    temporaryAccounts.value = temporaryAccounts.value.filter(acc => acc.id !== account.id)
+  } catch (error) {
+    console.error('Failed to save account:', error)
+  }
 }
 
 const deleteAccount = (id: string) => {

@@ -1,50 +1,51 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { Account } from '@/types/account'
+import { computed } from 'vue'
+import type { Account, AccountForm } from '@/types/account'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { STORAGE_KEYS } from '@/constants/storage'
+import { AccountService } from '@/services/accountService'
 
 export const useAccountsStore = defineStore('accounts', () => {
-  const accounts = ref<Account[]>(JSON.parse(localStorage.getItem('accounts') || '[]'))
+  const storedAccounts = useLocalStorage<Account[]>(STORAGE_KEYS.ACCOUNTS, [])
 
-  const saveToStorage = () => {
-    localStorage.setItem('accounts', JSON.stringify(accounts.value))
+  const addAccount = (accountForm: AccountForm) => {
+    if (!AccountService.validateAccount(accountForm)) {
+      throw new Error('Invalid account data')
+    }
+
+    const account = AccountService.formatAccountForStorage(accountForm)
+    storedAccounts.value.push(account)
   }
 
-  const addAccount = (account: Account) => {
-    accounts.value.push(account)
-    saveToStorage()
-  }
+  const updateAccount = (accountForm: AccountForm) => {
+    if (!AccountService.validateAccount(accountForm)) {
+      throw new Error('Invalid account data')
+    }
 
-  const editAccount = (account: Account) => {
-    const index = accounts.value.findIndex(a => a.id === account.id);
+    const account = AccountService.formatAccountForStorage(accountForm)
+    const index = storedAccounts.value.findIndex(a => a.id === account.id)
+
     if (index !== -1) {
-      accounts.value.splice(index, 1, account);
-      saveToStorage();
+      storedAccounts.value.splice(index, 1, account)
     }
   }
 
   const removeAccount = (id: string) => {
-    accounts.value = accounts.value.filter(a => a.id !== id)
-    saveToStorage()
+    storedAccounts.value = storedAccounts.value.filter(a => a.id !== id)
   }
 
-  const saveAccount = (account: Account) => {
-    const acc = accounts.value.find(a => a.id === account.id)
-    const accountToSave = {
-      ...account,
-    };
+  const saveAccount = (accountForm: AccountForm) => {
+    const exists = storedAccounts.value.some(a => a.id === accountForm.id)
 
-    delete accountToSave.labelsRaw
-    delete accountToSave.isEditing
-
-    if (acc) {
-      editAccount(accountToSave)
+    if (exists) {
+      updateAccount(accountForm)
     } else {
-      addAccount(accountToSave)
+      addAccount(accountForm)
     }
   }
 
   return {
-    accounts,
+    accounts: computed(() => storedAccounts.value),
     saveAccount,
     removeAccount
   }

@@ -1,4 +1,4 @@
-import type { AccountLabels } from "@/types/account";
+import type { Account } from "@/types/account";
 
 export const processLabels = (labelsRaw: string) => {
   return labelsRaw.split(';')
@@ -7,6 +7,6 @@ export const processLabels = (labelsRaw: string) => {
     .map(label => ({ text: label }));
 };
 
-export const stringyLabels = (labels: AccountLabels) => {
+export const stringyLabels = (labels: Account['labels']) => {
   return labels.map(l => l.text).join('; ') || '—';
 };

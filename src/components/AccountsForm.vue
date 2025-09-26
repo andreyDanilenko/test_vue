@@ -1,19 +1,15 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import InfoBlock from '@/components/InfoBlock.vue';
-import AccountItem from '@/components/AccountForm.vue';
-import { useAccountsStore } from '@/stores/accounts';
+import { ref } from 'vue'
+import InfoBlock from '@/components/InfoBlock.vue'
+import AccountItem from '@/components/AccountForm.vue'
+import { useAccountsStore } from '@/stores/accounts'
 import type { Account } from '@/types/account'
 
 const store = useAccountsStore()
-const localAccounts = ref<Account[]>([]);
-
-watch(() => store.accounts, (newAccounts) => {
-  localAccounts.value = JSON.parse(JSON.stringify(newAccounts));
-}, { immediate: true });
+const temporaryAccounts = ref<Account[]>([])
 
 const addAccount = () => {
-  localAccounts.value.push({
+  temporaryAccounts.value.push({
     id: crypto.randomUUID(),
     labels: [],
     labelsRaw: '',
@@ -25,15 +21,15 @@ const addAccount = () => {
 }
 
 const saveAccount = (account: Account) => {
-  store.saveAccount(account);
-};
+  store.saveAccount(account)
+  temporaryAccounts.value = temporaryAccounts.value.filter(acc => acc.id !== account.id)
+}
 
 const deleteAccount = (id: string) => {
-  const acc = store.accounts.find(a => a.id === id)
-  if (!acc) {
-    localAccounts.value = localAccounts.value.filter(a => a.id !== id)
+  if (store.accounts.find(a => a.id === id)) {
+    store.removeAccount(id)
   } else {
-    store.removeAccount(id);
+    temporaryAccounts.value = temporaryAccounts.value.filter(acc => acc.id !== id)
   }
 }
 </script>
@@ -51,8 +47,9 @@ const deleteAccount = (id: string) => {
     </div>
 
     <InfoBlock text="Вы можете ввести несколько меток через ;."/>
+
     <AccountItem
-      v-for="account in localAccounts"
+      v-for="account in [...store.accounts, ...temporaryAccounts]"
       :key="account.id"
       :account="account"
       @save="saveAccount"

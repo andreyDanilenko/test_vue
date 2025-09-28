@@ -1,11 +1,10 @@
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
-import type { Account, AccountForm } from '@/types/account'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { STORAGE_KEYS } from '@/constants/storage'
-import {
-  formatAccountForStorage
-} from '@/services/accountService'
+import { formatAccountForStorage } from '@/services/accountService'
+import type { Account, AccountForm } from '@/types/account'
+
 
 export const useAccountsStore = defineStore('accounts', () => {
   const storedAccounts = useLocalStorage<Account[]>(STORAGE_KEYS.ACCOUNTS, [])

@@ -3,31 +3,25 @@ import { computed } from 'vue'
 import type { Account, AccountForm } from '@/types/account'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { STORAGE_KEYS } from '@/constants/storage'
-import { AccountService } from '@/services/accountService'
+import {
+  formatAccountForStorage
+} from '@/services/accountService'
 
 export const useAccountsStore = defineStore('accounts', () => {
   const storedAccounts = useLocalStorage<Account[]>(STORAGE_KEYS.ACCOUNTS, [])
 
-  const addAccount = (accountForm: AccountForm) => {
-    if (!AccountService.validateAccount(accountForm)) {
-      throw new Error('Invalid account data')
-    }
+  const accounts = computed(() => storedAccounts.value);
 
-    const account = AccountService.formatAccountForStorage(accountForm)
-    storedAccounts.value.push(account)
+  const addAccount = (accountForm: AccountForm) => {
+    const account = formatAccountForStorage(accountForm)
+    storedAccounts.value = [...storedAccounts.value, account]
   }
 
   const updateAccount = (accountForm: AccountForm) => {
-    if (!AccountService.validateAccount(accountForm)) {
-      throw new Error('Invalid account data')
-    }
-
-    const account = AccountService.formatAccountForStorage(accountForm)
-    const index = storedAccounts.value.findIndex(a => a.id === account.id)
-
-    if (index !== -1) {
-      storedAccounts.value.splice(index, 1, account)
-    }
+    const account = formatAccountForStorage(accountForm)
+    storedAccounts.value = storedAccounts.value.map(a =>
+      a.id === account.id ? account : a
+    )
   }
 
   const removeAccount = (id: string) => {
@@ -35,9 +29,9 @@ export const useAccountsStore = defineStore('accounts', () => {
   }
 
   const saveAccount = (accountForm: AccountForm) => {
-    const exists = storedAccounts.value.some(a => a.id === accountForm.id)
+    const isExistingAccount = storedAccounts.value.some(a => a.id === accountForm.id)
 
-    if (exists) {
+    if (isExistingAccount) {
       updateAccount(accountForm)
     } else {
       addAccount(accountForm)
@@ -45,7 +39,7 @@ export const useAccountsStore = defineStore('accounts', () => {
   }
 
   return {
-    accounts: computed(() => storedAccounts.value),
+    accounts,
     saveAccount,
     removeAccount
   }

@@ -3,9 +3,8 @@ import { ref } from 'vue'
 import InfoBlock from '@/components/InfoBlock.vue'
 import AccountItem from '@/components/AccountForm.vue'
 import { useAccountsStore } from '@/stores/accounts'
-
-import type { AccountForm } from '@/types/account'
 import { createDefaultAccount } from '@/services/accountService'
+import type { AccountForm } from '@/types/account'
 
 const store = useAccountsStore()
 const temporaryAccounts = ref<AccountForm[]>([])

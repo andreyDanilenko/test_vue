@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Account, AccountForm } from '@/types/account'
+import { ref } from 'vue'
 import { stringyLabels } from '@/utils/processLabels'
 import { validateAccountForUI } from '@/validator/account';
-import { ref } from 'vue'
+import type { Account, AccountForm } from '@/types/account'
 
 const props = defineProps<{
   account: Account;

@@ -3,14 +3,15 @@ import { ref } from 'vue'
 import InfoBlock from '@/components/InfoBlock.vue'
 import AccountItem from '@/components/AccountForm.vue'
 import { useAccountsStore } from '@/stores/accounts'
-import { AccountService } from '@/services/accountService'
+
 import type { AccountForm } from '@/types/account'
+import { createDefaultAccount } from '@/services/accountService'
 
 const store = useAccountsStore()
 const temporaryAccounts = ref<AccountForm[]>([])
 
 const addAccount = () => {
-  temporaryAccounts.value.push(AccountService.createDefaultAccount())
+  temporaryAccounts.value.push(createDefaultAccount())
 }
 
 const saveAccount = (account: AccountForm) => {

@@ -1,32 +1,30 @@
 import { processLabels } from '@/utils/processLabels'
 import type { Account, AccountForm } from '@/types/account'
+import { validateAccount } from '@/validator/account'
 
-export class AccountService {
-  static validateAccount(account: AccountForm): boolean {
-    return !!account.login.trim()
+export const formatAccountForStorage = (account: AccountForm): Account => {
+  const validation = validateAccount(account)
+  if (!validation.isValid) {
+    throw new Error(validation.errors.join(', '))
   }
 
-  static formatAccountForStorage(account: AccountForm): Account {
-    const accountData: Account = {
-      id: account.id,
-      type: account.type,
-      login: account.login,
-      password: account.password,
-      labels: processLabels(account.labelsRaw)
-    }
-
-    return accountData
+  return {
+    id: account.id,
+    type: account.type,
+    login: account.login,
+    password: account.password,
+    labels: processLabels(account.labelsRaw)
   }
+}
 
-  static createDefaultAccount(): AccountForm {
-    return {
-      id: crypto.randomUUID(),
-      labels: [],
-      labelsRaw: '',
-      type: 'LDAP',
-      login: '',
-      password: null,
-      isEditing: true,
-    }
+export const createDefaultAccount = (): AccountForm => {
+  return {
+    id: crypto.randomUUID(),
+    labels: [],
+    labelsRaw: '',
+    type: 'LDAP',
+    login: '',
+    password: null,
+    isEditing: true,
   }
 }

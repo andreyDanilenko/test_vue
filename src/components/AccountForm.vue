@@ -32,6 +32,8 @@ const saveOnBlur = async (): Promise<void> => {
   isLoading.value = true
   try {
     emit('save', localAccount.value)
+  } catch {
+    console.error('Save error')
   } finally {
     isLoading.value = false
   }

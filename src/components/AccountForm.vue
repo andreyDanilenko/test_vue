@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Account, AccountForm } from '@/types/account'
 import { stringyLabels } from '@/utils/processLabels'
+import { validateAccountForUI } from '@/validator/account';
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -20,30 +21,13 @@ const localAccount = ref<AccountForm>({
 const errors = ref({ login: '', password: '' })
 const isLoading = ref(false)
 
-const validate = (acc: Account): boolean => {
-  errors.value = { login: '', password: '' }
-
-  if (!acc.login?.trim()) {
-    errors.value.login = 'Логин обязателен'
-    return false
-  }
-
-  if (acc.type === 'Локальная') {
-    if (!acc.password?.trim()) {
-      errors.value.password = 'Пароль обязателен'
-      return false
-    }
-    if (acc.password.length < 6) {
-      errors.value.password = 'Минимум 6 символов'
-      return false
-    }
-  }
-
-  return true
-}
-
 const saveOnBlur = async (): Promise<void> => {
-  if (isLoading.value || !validate(localAccount.value)) return
+  if (isLoading.value) return
+
+  const validation = validateAccountForUI(localAccount.value)
+  errors.value = validation.errors
+
+  if (!validation.isValid) return
 
   isLoading.value = true
   try {
